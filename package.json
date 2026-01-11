@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@daveyplate/better-auth-ui": "^3.3.14",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
