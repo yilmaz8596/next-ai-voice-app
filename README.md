@@ -34,3 +34,23 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Docker (App + Postgres)
+
+This repo includes a production Docker image for the Next.js app and a dockerized Postgres database.
+
+### Run
+
+Build + start everything:
+
+```bash
+docker compose up --build
+```
+
+- App: http://localhost:3000
+- Postgres: `localhost:5432` (user/password/db are `app`/`app`/`app` by default)
+
+### Notes
+
+- The app container uses `DATABASE_URL=postgresql://app:app@db:5432/app`.
+- If you use an ORM (Prisma/Drizzle/etc.), point it at `db` (the compose service name) rather than `localhost`.
