@@ -50,6 +50,7 @@ export default async function AppSidebar() {
           <Upgrade />
         </div>
         <UserButton
+          suppressHydrationWarning={true}
           variant="outline"
           className="border-muted-foreground/20 hover:border-primary/50 w-full transition-colors"
           disableDefaultLinks={true}

@@ -15,6 +15,9 @@ import {
 import BreadcrumbPageClient from "@/components/sidebar/breadcrumb-page-client";
 import { Metadata } from "next";
 import AppSidebar from "@/components/sidebar/app-sidebar";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Voxio",
@@ -23,11 +26,20 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
 };
-export default function DashboardLayout({
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/auth/sign-in");
+  }
+
   return (
     <div suppressHydrationWarning={true} className="flex h-screen w-screen">
       <Providers>

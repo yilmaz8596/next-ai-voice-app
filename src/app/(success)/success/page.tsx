@@ -1,15 +1,35 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ checkout_id?: string }>;
-}) {
-  const params = await searchParams;
-  const checkoutId = params.checkout_id;
+export default function SuccessPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const checkoutId = searchParams.get("checkout_id");
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    // Replace current history entry to prevent back navigation
+    window.history.replaceState(null, "", "/success");
+  }, []);
+
+  useEffect(() => {
+    // Countdown timer
+    if (countdown <= 0) {
+      router.replace("/dashboard");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -35,11 +55,17 @@ export default async function SuccessPage({
                   Order ID: {checkoutId}
                 </p>
               )}
+              <p className="text-sm text-muted-foreground pt-2">
+                Redirecting to dashboard in {countdown} seconds...
+              </p>
             </div>
 
             {/* Action Button */}
-            <Button asChild className="w-full sm:w-auto">
-              <Link href="/dashboard">Go to Dashboard</Link>
+            <Button
+              onClick={() => router.replace("/dashboard")}
+              className="w-full sm:w-auto"
+            >
+              Go to Dashboard Now
             </Button>
 
             {/* Additional Info */}

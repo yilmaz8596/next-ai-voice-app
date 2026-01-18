@@ -22,6 +22,15 @@ export const user = pgTable("user", {
   credits: integer("credits").default(10).notNull(),
 });
 
+export const processedOrder = pgTable("processed_order", {
+  orderId: text("order_id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  creditsAdded: integer("credits_added").notNull(),
+  processedAt: timestamp("processed_at").defaultNow().notNull(),
+});
+
 export const audioProject = pgTable("audio_project", {});
 
 export const uploadedVoice = pgTable("uploaded_voice", {});
