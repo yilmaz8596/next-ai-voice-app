@@ -73,10 +73,23 @@ export const auth = betterAuth({
           },
           onOrderPaid: async (order) => {
             const externalCustomerId = order.data.customer.externalId;
+            const orderId = order.data.id;
 
             if (!externalCustomerId) {
               console.error("No external customer ID found.");
               throw new Error("No external customer id found.");
+            }
+
+            // Idempotency: skip if this order was already processed
+            const existing = await db
+              .select()
+              .from(schema.processedOrder)
+              .where(eq(schema.processedOrder.orderId, orderId))
+              .limit(1);
+
+            if (existing.length > 0) {
+              console.log(`Order ${orderId} already processed, skipping.`);
+              return;
             }
 
             const productId = order.data.productId;
@@ -106,11 +119,18 @@ export const auth = betterAuth({
                 })
                 .where(eq(schema.user.id, externalCustomerId));
 
+              await db.insert(schema.processedOrder).values({
+                orderId,
+                userId: externalCustomerId,
+                creditsAdded: creditsToAdd,
+              });
+
               console.log(
                 `Successfully added ${creditsToAdd} credits to user ${externalCustomerId}.`,
               );
             } catch (error) {
               console.error("Error updating credits:", error);
+              throw error;
             }
           },
         }),
