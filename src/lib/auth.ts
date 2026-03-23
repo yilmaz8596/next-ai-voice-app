@@ -26,11 +26,20 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+  user: {
+    deleteUser: {
+      enabled: true,
     },
+  },
+  socialProviders: {
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? {
+          github: {
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          },
+        }
+      : {}),
   },
   plugins: [
     polar({
@@ -98,7 +107,7 @@ export const auth = betterAuth({
                 .where(eq(schema.user.id, externalCustomerId));
 
               console.log(
-                `Successfully added ${creditsToAdd} credits to user ${externalCustomerId}.`
+                `Successfully added ${creditsToAdd} credits to user ${externalCustomerId}.`,
               );
             } catch (error) {
               console.error("Error updating credits:", error);

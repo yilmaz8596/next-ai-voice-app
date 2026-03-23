@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Crown, Zap, Sparkles } from "lucide-react";
+import { Crown, Zap, Sparkles, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UpgradePage() {
@@ -33,6 +33,15 @@ export default function UpgradePage() {
 
   return (
     <div className="container mx-auto py-10">
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/dashboard/projects")}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Projects
+        </Button>
+      </div>
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight mb-2">
           Upgrade Your Plan

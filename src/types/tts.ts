@@ -1,0 +1,58 @@
+export interface GeneratedAudio {
+  s3_key: string;
+  audioUrl: string;
+  text: string;
+  language: string;
+  timestamp: Date;
+}
+
+export interface VoiceFile {
+  name: string;
+  s3_key: string;
+}
+
+export interface UploadedVoice {
+  id: string;
+  name: string;
+  s3Key: string;
+  url: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Language {
+  code: string;
+  name: string;
+  flag: string;
+}
+
+export interface VoiceUploadResponse {
+  success: boolean;
+  id?: string;
+  audioUrl?: string;
+  s3Key?: string;
+  error?: string;
+}
+
+export interface UserVoicesResponse {
+  success: boolean;
+  voices?: UploadedVoice[];
+  error?: string;
+}
+
+export interface GenerateSpeechData {
+  text: string;
+  s3Key: string;
+  language: string;
+  exaggeration: number;
+  cfgWeight: number;
+}
+
+export interface GenerateSpeechResponse {
+  success: boolean;
+  s3Key?: string;
+  audioUrl?: string;
+  projectId?: string;
+  error?: string;
+}

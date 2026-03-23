@@ -6,6 +6,7 @@ import {
   boolean,
   index,
   integer,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -31,9 +32,40 @@ export const processedOrder = pgTable("processed_order", {
   processedAt: timestamp("processed_at").defaultNow().notNull(),
 });
 
-export const audioProject = pgTable("audio_project", {});
+export const audioProject = pgTable("audio_project", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  text: text("text").notNull(),
+  audioUrl: text("audio_url").notNull(),
+  s3Key: text("s3_key").notNull(),
+  language: text("language").notNull(),
+  voiceS3Key: text("voice_s3_key").notNull(),
+  exaggeration: doublePrecision("exaggeration").default(0.5).notNull(),
+  cfgWeight: doublePrecision("cfg_weight").default(0.5).notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
-export const uploadedVoice = pgTable("uploaded_voice", {});
+export const uploadedVoice = pgTable("uploaded_voice", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  s3Key: text("s3_key").notNull(),
+  url: text("url").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const session = pgTable(
   "session",
@@ -51,7 +83,7 @@ export const session = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [index("session_userId_idx").on(table.userId)]
+  (table) => [index("session_userId_idx").on(table.userId)],
 );
 
 export const account = pgTable(
@@ -75,7 +107,7 @@ export const account = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("account_userId_idx").on(table.userId)]
+  (table) => [index("account_userId_idx").on(table.userId)],
 );
 
 export const verification = pgTable(
@@ -91,7 +123,7 @@ export const verification = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("verification_identifier_idx").on(table.identifier)]
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
 export const userRelations = relations(user, ({ many }) => ({
