@@ -200,10 +200,12 @@ export default function CreatePage() {
       return;
     }
 
+    // Reset the input so the same file can be re-uploaded later
+    event.target.value = "";
+
     setIsUploadingVoice(true);
     try {
       const formData = new FormData();
-      // voice-upload.ts expects the file under the key 'file'
       formData.append("file", file);
 
       const result = await uploadVoice(formData);
@@ -212,9 +214,14 @@ export default function CreatePage() {
         throw new Error(result.error ?? "Upload failed");
       }
 
-      toast.success("Voice uploaded successfully!");
-
       await fetchUserUploadedVoices();
+
+      // Auto-select the newly uploaded voice
+      if (result.s3Key) {
+        setSelectedVoice(result.s3Key);
+      }
+
+      toast.success("Voice uploaded! It's now selected and ready to use.");
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload voice file");

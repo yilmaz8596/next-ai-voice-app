@@ -11,7 +11,19 @@ import {
   Download,
   Plus,
   ArrowLeft,
+  AlertTriangle,
 } from "lucide-react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -49,6 +61,8 @@ export default function Projects() {
   const [filteredProjects, setFilteredProjects] = useState<AudioProject[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -101,13 +115,24 @@ export default function Projects() {
     setFilteredProjects(filtered);
   }, [audioProjects, searchQuery, sortBy]);
 
-  const handleDelete = async (projectId: string, e: React.MouseEvent) => {
+  const handleDelete = (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this audio project?")) return;
+    setProjectToDelete(projectId);
+  };
 
-    const result = await deleteAudioProject(projectId);
-    if (result.success) {
-      setAudioProjects((prev) => prev.filter((p) => p.id !== projectId));
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteAudioProject(projectToDelete);
+      if (result.success) {
+        setAudioProjects((prev) =>
+          prev.filter((p) => p.id !== projectToDelete),
+        );
+      }
+    } finally {
+      setIsDeleting(false);
+      setProjectToDelete(null);
     }
   };
 
@@ -136,6 +161,44 @@ export default function Projects() {
   return (
     <>
       <RedirectToSignIn />
+      <AlertDialog
+        open={projectToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setProjectToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              Delete Audio Project
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              This action cannot be undone. The audio file will be permanently
+              deleted from your account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <SignedIn>
         <div className="space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -259,7 +322,7 @@ export default function Projects() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-shrink-0 items-center gap-2">
+                      <div className="flex shrink-0 items-center gap-2">
                         <audio
                           controls
                           className="w-48"
